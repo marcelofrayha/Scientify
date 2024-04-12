@@ -124,12 +124,22 @@
 			},
 			{
 				"inputs": [],
+				"name": "NoTokenBalance",
+				"type": "error"
+			},
+			{
+				"inputs": [],
 				"name": "NotAuthenticated",
 				"type": "error"
 			},
 			{
 				"inputs": [],
 				"name": "NotEnoughValue",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotLiquidable",
 				"type": "error"
 			},
 			{
@@ -152,6 +162,11 @@
 					}
 				],
 				"name": "OwnableUnauthorizedAccount",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "PaymentFailed",
 				"type": "error"
 			},
 			{
@@ -469,11 +484,34 @@
 						"internalType": "uint256",
 						"name": "articlePrice",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "articlePriceIncreaseRate",
+						"type": "uint256"
 					}
 				],
 				"name": "createResearch",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "fundResearch",
+				"outputs": [],
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -498,62 +536,6 @@
 					}
 				],
 				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "account",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes"
-					}
-				],
-				"name": "mint",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "to",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256[]",
-						"name": "ids",
-						"type": "uint256[]"
-					},
-					{
-						"internalType": "uint256[]",
-						"name": "amounts",
-						"type": "uint256[]"
-					},
-					{
-						"internalType": "bytes",
-						"name": "data",
-						"type": "bytes"
-					}
-				],
-				"name": "mintBatch",
-				"outputs": [],
-				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -590,6 +572,38 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					}
+				],
+				"name": "readArticle",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "repo",
+						"type": "string"
+					}
+				],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					}
+				],
+				"name": "redeemToken",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "renounceOwnership",
 				"outputs": [],
@@ -617,11 +631,6 @@
 						"type": "uint8"
 					},
 					{
-						"internalType": "string",
-						"name": "repository",
-						"type": "string"
-					},
-					{
 						"internalType": "uint256",
 						"name": "investiment",
 						"type": "uint256"
@@ -630,6 +639,50 @@
 						"internalType": "uint256",
 						"name": "articlePrice",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "sharePrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "articlePriceIncreaseRate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "funding",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "profit",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "researchOwner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -661,11 +714,6 @@
 						"type": "uint8"
 					},
 					{
-						"internalType": "string",
-						"name": "repository",
-						"type": "string"
-					},
-					{
 						"internalType": "uint256",
 						"name": "investiment",
 						"type": "uint256"
@@ -674,6 +722,31 @@
 						"internalType": "uint256",
 						"name": "articlePrice",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "sharePrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "articlePriceIncreaseRate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "funding",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "profit",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -1123,11 +1196,11 @@
 			]
 		},
 		"contracts/Scientify.sol": {
-			"keccak256": "0x7496779b0c444d120ec411bf0a96fc9d17508a787c6ae9e223755e413a2d6921",
+			"keccak256": "0xabad090c29bb01fb8442050598397374590d33fe5877773c9496b61239af702f",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://7c2404af665936560f644f4fff62c4032a9f481ff1c1db030aa8ca73358b526e",
-				"dweb:/ipfs/QmYJGaJCwA5mEbooGjN6cug3JDxhVfNEWLKTitsqKVfyf1"
+				"bzz-raw://db20a2d55686dd624927a98b903509e5b5974e821e4214f8bfa16f3484075b7a",
+				"dweb:/ipfs/QmPYaaCX9Bw6LTqhSC2cSJ7vNHSpamEhqvHMbh5RM58qRX"
 			]
 		}
 	},

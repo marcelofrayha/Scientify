@@ -11,22 +11,31 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     error NotAuthenticated();
     error ResearchCap();
     error NotEnoughValue();
+    error PaymentFailed();
+    error NotLiquidable();
+    error NoTokenBalance();
 
-    uint researchNumber;
+    uint researchNumber = 1;
 
     enum ResearchState {developing, developed, paid}
 
     struct Research {
         uint id;
         ResearchState state;
-        string repository;
         uint investiment;
         uint articlePrice;
+        uint sharePrice;
+        uint articlePriceIncreaseRate; 
+        uint funding;
+        uint profit;
+        address owner;
     }
 
     mapping (string => address) public authenticatedResearchers;
     mapping (address => Research[]) public researchRequest;
     mapping (uint => Research) public researchById;
+    mapping (uint => address) public researchOwner;
+    mapping (uint => string) private repository;
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
@@ -34,21 +43,58 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         authenticatedResearchers[proof] = msg.sender;
     }
 
-    function createResearch (string memory authentication, string memory repo, uint invest, uint articlePrice) public {
+    function createResearch (string memory authentication, string memory repo, uint invest, uint articlePrice, uint articlePriceIncreaseRate) public {
         if (authenticatedResearchers[authentication] != msg.sender) revert NotAuthenticated();
         if (researchRequest[msg.sender].length > 4) revert ResearchCap();
         Research memory research = Research(
             researchNumber++,
             ResearchState.developing,
-            repo,
             invest,
-            articlePrice
+            articlePrice,
+            invest / 1e8,
+            articlePriceIncreaseRate,
+            0,
+            0,
+            msg.sender
         );
+        repository[research.id] = repo;
         researchRequest[msg.sender].push(research);
         researchById[research.id] = research;
     }
 
+    function fundResearch (uint id, uint amount) public payable {
+        if (msg.value < researchById[id].sharePrice * amount) revert NotEnoughValue();
+        Research storage research = researchById[id];
+        mint(msg.sender, id, amount, "");
+        research.funding += msg.value;
+        (bool success, ) = payable(researchOwner[id]).call{value: msg.value}("");
+        if (!success) revert PaymentFailed();
+        if (research.funding >= research.investiment) researchById[id].state = ResearchState.developed;
+    }
 
+    function readArticle (uint id) public payable returns (string memory repo) {
+        Research storage research = researchById[id];
+        if (msg.value < research.articlePrice) revert NotEnoughValue();
+        research.articlePrice *= (1 + (research.articlePriceIncreaseRate / 100));
+        research.profit += msg.value;
+        if (research.profit >= research.investiment) {
+         research.state = ResearchState.paid;
+         research.articlePrice = 0;
+        (bool success, ) = payable(msg.sender).call{value: research.profit - research.investiment}("");
+        if (!success) revert PaymentFailed();
+        }
+        return repository[id];
+    }
+
+    function redeemToken (uint id) public payable {
+        Research storage research = researchById[id];
+        if (research.state != ResearchState.paid) revert NotLiquidable();
+        uint tokensOwned = balanceOf(msg.sender, id);
+        if (tokensOwned == 0) revert NoTokenBalance();
+        burn(msg.sender, id, tokensOwned);
+        (bool success, ) = payable(msg.sender).call{value : research.sharePrice * tokensOwned}("");
+        if (!success) revert PaymentFailed();
+    }
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
@@ -63,13 +109,13 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
-        public
+        internal
     {
         _mint(account, id, amount, data);
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
-        public
+        internal
     {
         _mintBatch(to, ids, amounts, data);
     }
@@ -80,9 +126,6 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         internal
         override(ERC1155, ERC1155Pausable)
     {
-        for (uint i; i < ids.length; i++) {
-            if (researchById[ids[i]].articlePrice > msg.value) revert NotEnoughValue();
-        }
         super._update(from, to, ids, values);
     }
 }
