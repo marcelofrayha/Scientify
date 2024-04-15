@@ -105,7 +105,7 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             revokeTimestamp: 0,
             attester: msg.sender,
             validUntil: 0,
-            dataLocation: DataLocation.ONCHAIN,
+            dataLocation: DataLocation.IPFS,
             revoked: false,
             recipients: recipients,
             data: abi.encode(documentHash)
