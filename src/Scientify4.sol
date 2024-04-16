@@ -53,10 +53,8 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
     function verifyResearcher(
-        address researcher,
-        uint64 attestationId
+        address researcher
     ) public onlyOwner {
-        require(spInstance.validate(attestationId), "Invalid attestation");
         verifiedResearchers[researcher] = true;
         attestVerificationStatus(researcher);
     }
@@ -68,10 +66,10 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         Attestation memory verificationAttestation = Attestation({
             schemaId: schemaId,
             linkedAttestationId: 0,
-            attestTimestamp: block.timestamp,
+            attestTimestamp: 0,
             revokeTimestamp: 0,
             attester: address(this),
-            validUntil: block.timestamp + 365 days,
+            validUntil: 0,
             dataLocation: DataLocation.IPFS,
             revoked: false,
             recipients: recipients,
@@ -100,7 +98,7 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint256 articlePrice,
         uint256 articlePriceIncreaseRate
     ) public {
-        if (authenticatedResearchers[authentication] != msg.sender)
+        if (!verifiedResearchers[msg.sender])
             revert NotAuthenticated();
         if (researchRequest[msg.sender].length > 4) revert ResearchCap();
         Research memory research = Research(
