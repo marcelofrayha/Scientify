@@ -37,7 +37,10 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         address owner;
     }
 
-    mapping(string => address) public authenticatedResearchers;
+    // mapping(string => address) public authenticatedResearchers;
+    mapping(address => bool) public verifiedResearchers;
+    mapping(address => uint64) public researcherVerificationAttestations;
+
     mapping(address => Research[]) public researchRequest;
     mapping(uint256 => Research) public researchById;
     mapping(uint256 => address) public researchOwner;
@@ -49,9 +52,46 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
-    function authenticateUser(string memory proof) public {
-        authenticatedResearchers[proof] = msg.sender;
+    function verifyResearcher(
+        address researcher,
+        uint64 attestationId
+    ) public onlyOwner {
+        require(spInstance.validate(attestationId), "Invalid attestation");
+        verifiedResearchers[researcher] = true;
+        attestVerificationStatus(researcher);
     }
+
+    function attestVerificationStatus(address researcher) internal {
+        bytes[] memory recipients = new bytes[](1);
+        recipients[0] = abi.encode(researcher);
+
+        Attestation memory verificationAttestation = Attestation({
+            schemaId: schemaId,
+            linkedAttestationId: 0,
+            attestTimestamp: block.timestamp,
+            revokeTimestamp: 0,
+            attester: address(this),
+            validUntil: block.timestamp + 365 days,
+            dataLocation: DataLocation.IPFS,
+            revoked: false,
+            recipients: recipients,
+            data: abi.encodePacked("Researcher Verified: ", researcher)
+        });
+
+        uint64 attestationId = spInstance.attest(
+            verificationAttestation,
+            "",
+            "",
+            ""
+        );
+        researcherVerificationAttestations[researcher] = attestationId;
+        emit VerificationAttested(researcher, attestationId);
+    }
+
+    event VerificationAttested(
+        address indexed researcher,
+        uint64 attestationId
+    );
 
     function createResearch(
         string memory authentication,
