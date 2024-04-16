@@ -28,13 +28,14 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     struct Research {
         uint id;
         ResearchState state;
-        uint investiment;
+        uint investment;
         uint articlePrice;
         uint sharePrice;
         uint articlePriceIncreaseRate;
         uint funding;
         uint profit;
         address owner;
+        string documentCID
     }
 
     ISP public spInstance;
@@ -54,29 +55,29 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function createResearch(
-        string memory authentication,
-        string memory repo,
-        uint invest,
-        uint articlePrice,
-        uint articlePriceIncreaseRate
-    ) public {
-        if (authenticatedResearchers[authentication] != msg.sender)
-            revert NotAuthenticated();
-        if (researchRequest[msg.sender].length > 4) revert ResearchCap();
-        Research memory research = Research(
-            researchNumber++,
-            ResearchState.developing,
-            invest,
-            articlePrice,
-            invest / 1e8,
-            articlePriceIncreaseRate,
-            0,
-            0,
-            msg.sender
-        );
-        repository[research.id] = repo;
-        researchRequest[msg.sender].push(research);
-        researchById[research.id] = research;
+    string memory authentication,
+    string memory repo,
+    uint invest,
+    uint articlePrice,
+    uint articlePriceIncreaseRate
+) public {
+    if (authenticatedResearchers[authentication] != msg.sender)
+        revert NotAuthenticated();
+    if (researchRequest[msg.sender].length > 4) revert ResearchCap();
+    Research memory research = Research(
+        researchNumber++,
+        ResearchState.developing,
+        invest,
+        articlePrice,
+        invest / 1e8,
+        articlePriceIncreaseRate,
+        0,
+        0,
+        msg.sender,
+        repo // Assuming 'repo' is the document's CID
+    );
+    researchRequest[msg.sender].push(research);
+    researchById[research.id] = research;
     }
 
     function setSPInstance(address instance) external onlyOwner {
