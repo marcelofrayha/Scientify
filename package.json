@@ -26,7 +26,7 @@
     "@openzeppelin/contracts-upgradeable": "5.0.1"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-foundry": "^1.1.1",
+    "@nomicfoundation/hardhat-foundry": "^1.0.2-dev.0",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "@openzeppelin/hardhat-upgrades": "^3.0.3",
     "@types/node": ">=16.0.0",

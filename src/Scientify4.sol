@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.25;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -17,7 +17,7 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     error NotLiquidable();
     error NoTokenBalance();
 
-    uint researchNumber = 1;
+    uint256 researchNumber = 1;
 
     enum ResearchState {
         developing,
@@ -26,27 +26,26 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     struct Research {
-        uint id;
+        uint256 id;
         ResearchState state;
-        uint investment;
-        uint articlePrice;
-        uint sharePrice;
-        uint articlePriceIncreaseRate;
-        uint funding;
-        uint profit;
+        uint256 investiment;
+        uint256 articlePrice;
+        uint256 sharePrice;
+        uint256 articlePriceIncreaseRate;
+        uint256 funding;
+        uint256 profit;
         address owner;
-        string documentCID
     }
-
-    ISP public spInstance;
-    uint64 public schemaId;
 
     mapping(string => address) public authenticatedResearchers;
     mapping(address => Research[]) public researchRequest;
-    mapping(uint => Research) public researchById;
-    mapping(uint => address) public researchOwner;
-    mapping(uint => string) private repository;
-    mapping(uint => uint64) public attestationIdsByResearchId;
+    mapping(uint256 => Research) public researchById;
+    mapping(uint256 => address) public researchOwner;
+    mapping(uint256 => string) private repository;
+    mapping(address => uint64) public authorAttestations; // Mapping to keep track of attestations linked by other authors
+
+    ISP public spInstance;
+    uint64 public schemaId;
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
@@ -55,29 +54,29 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function createResearch(
-    string memory authentication,
-    string memory repo,
-    uint invest,
-    uint articlePrice,
-    uint articlePriceIncreaseRate
-) public {
-    if (authenticatedResearchers[authentication] != msg.sender)
-        revert NotAuthenticated();
-    if (researchRequest[msg.sender].length > 4) revert ResearchCap();
-    Research memory research = Research(
-        researchNumber++,
-        ResearchState.developing,
-        invest,
-        articlePrice,
-        invest / 1e8,
-        articlePriceIncreaseRate,
-        0,
-        0,
-        msg.sender,
-        repo // Assuming 'repo' is the document's CID
-    );
-    researchRequest[msg.sender].push(research);
-    researchById[research.id] = research;
+        string memory authentication,
+        string memory repo,
+        uint256 invest,
+        uint256 articlePrice,
+        uint256 articlePriceIncreaseRate
+    ) public {
+        if (authenticatedResearchers[authentication] != msg.sender)
+            revert NotAuthenticated();
+        if (researchRequest[msg.sender].length > 4) revert ResearchCap();
+        Research memory research = Research(
+            researchNumber++,
+            ResearchState.developing,
+            invest,
+            articlePrice,
+            invest / 1e8,
+            articlePriceIncreaseRate,
+            0,
+            0,
+            msg.sender
+        );
+        repository[research.id] = repo;
+        researchRequest[msg.sender].push(research);
+        researchById[research.id] = research;
     }
 
     function setSPInstance(address instance) external onlyOwner {
@@ -89,12 +88,13 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function attestAuthorship(
-        uint researchId,
         string memory documentHash,
         uint64 linkedAttestationId
-    ) public returns (uint64) {
-        require(researchById[researchId].id != 0, "Research ID does not exist");
-        // require(spInstance.exists(linkedAttestationId), "Linked attestation ID does not exist");
+    ) external {
+        require(
+            msg.sender == owner() || authorAttestations[msg.sender] > 0,
+            "Not authorized to attest"
+        );
 
         bytes[] memory recipients = new bytes[](1);
         recipients[0] = abi.encode(msg.sender);
@@ -104,7 +104,7 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             linkedAttestationId: linkedAttestationId,
             attestTimestamp: 0,
             revokeTimestamp: 0,
-            attester: msg.sender,
+            attester: address(this),
             validUntil: 0,
             dataLocation: DataLocation.IPFS,
             revoked: false,
@@ -113,12 +113,10 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         });
 
         uint64 attestationId = spInstance.attest(a, "", "", "");
-        attestationIdsByResearchId[researchId] = attestationId;
+        authorAttestations[msg.sender] = attestationId; // Update the mapping with the new attestation ID
         emit AuthorshipAttested(msg.sender, attestationId, documentHash);
-        return attestationId;
     }
 
-    // Override the _update function to add custom logic
     function _update(
         address from,
         address to,
@@ -129,13 +127,10 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         // For example, you can emit an event or perform checks
 
         // Call the parent contract's _update function to perform the actual balance update
-        super._update(from, to, ids, values);
-
+        super._update(from, to, ids, values); // This calls ERC1155's _update function, and then ERC1155Pausable's _update if there's additional logic there
         // Custom logic after the balance update
         // For example, you can perform additional state changes or emit events
     }
-
-    // Other functions remain unchanged...
 
     event AuthorshipAttested(
         address author,
