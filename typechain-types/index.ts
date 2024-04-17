@@ -46,3 +46,5 @@ export type { Pausable } from "./@openzeppelin/contracts/utils/Pausable";
 export { Pausable__factory } from "./factories/@openzeppelin/contracts/utils/Pausable__factory";
 export type { Scientify } from "./src/Scientify";
 export { Scientify__factory } from "./factories/src/Scientify__factory";
+export type { Scientify4 } from "./src/Scientify4.sol/Scientify4";
+export { Scientify4__factory } from "./factories/src/Scientify4.sol/Scientify4__factory";

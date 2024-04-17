@@ -18,7 +18,7 @@ const config: HardhatUserConfig = {
     solidity: {
         compilers: [
             {
-                version: '0.8.24',
+                version: '0.8.25',
                 settings: {
                     optimizer: {
                         enabled: true,
@@ -29,6 +29,11 @@ const config: HardhatUserConfig = {
         ]
     },
     networks: {
+        sepolia: {
+            url: process.env.SEPOLIA_RPC_URL!, // Replace SEPOLIA_RPC_URL with your Sepolia RPC URL
+            chainId: 11155111, // Sepolia testnet chain ID
+            accounts: [process.env.PRIVATE_KEY!]
+        },
         mumbai: {
             url: 'https://polygon-mumbai-bor-rpc.publicnode.com',
             chainId: 80001,
