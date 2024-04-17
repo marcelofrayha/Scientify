@@ -9,15 +9,18 @@ import "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
 import "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
 
-contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
+//only Attest Researcher.
+// Clean Copy
+contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     error NotAuthenticated();
     error ResearchCap();
     error NotEnoughValue();
     error PaymentFailed();
     error NotLiquidable();
     error NoTokenBalance();
+    error InvalidAttestation();
 
-    uint256 researchNumber = 1;
+    uint256 private researchNumber = 1;
 
     enum ResearchState {
         developing,
@@ -28,94 +31,26 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     struct Research {
         uint256 id;
         ResearchState state;
-        uint256 investiment;
+        uint256 investment;
         uint256 articlePrice;
         uint256 sharePrice;
         uint256 articlePriceIncreaseRate;
         uint256 funding;
         uint256 profit;
         address owner;
+        string documentCID;
     }
 
-    // mapping(string => address) public authenticatedResearchers;
     mapping(address => bool) public verifiedResearchers;
-    mapping(address => uint64) public researcherVerificationAttestations;
-
     mapping(address => Research[]) public researchRequest;
     mapping(uint256 => Research) public researchById;
-    mapping(uint256 => address) public researchOwner;
     mapping(uint256 => string) private repository;
-    mapping(address => uint64) public authorAttestations; // Mapping to keep track of attestations linked by other authors
+    mapping(address => uint64) public researcherVerificationAttestations;
 
     ISP public spInstance;
     uint64 public schemaId;
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
-
-    function verifyResearcher(
-        address researcher
-    ) public onlyOwner {
-        verifiedResearchers[researcher] = true;
-        attestVerificationStatus(researcher);
-    }
-
-    function attestVerificationStatus(address researcher) internal {
-        bytes[] memory recipients = new bytes[](1);
-        recipients[0] = abi.encode(researcher);
-
-        Attestation memory verificationAttestation = Attestation({
-            schemaId: schemaId,
-            linkedAttestationId: 0,
-            attestTimestamp: 0,
-            revokeTimestamp: 0,
-            attester: address(this),
-            validUntil: 0,
-            dataLocation: DataLocation.IPFS,
-            revoked: false,
-            recipients: recipients,
-            data: abi.encodePacked("Researcher Verified: ", researcher)
-        });
-
-        uint64 attestationId = spInstance.attest(
-            verificationAttestation,
-            "",
-            "",
-            ""
-        );
-        researcherVerificationAttestations[researcher] = attestationId;
-        emit VerificationAttested(researcher, attestationId);
-    }
-
-    event VerificationAttested(
-        address indexed researcher,
-        uint64 attestationId
-    );
-
-    function createResearch(
-        string memory authentication,
-        string memory repo,
-        uint256 invest,
-        uint256 articlePrice,
-        uint256 articlePriceIncreaseRate
-    ) public {
-        if (!verifiedResearchers[msg.sender])
-            revert NotAuthenticated();
-        if (researchRequest[msg.sender].length > 4) revert ResearchCap();
-        Research memory research = Research(
-            researchNumber++,
-            ResearchState.developing,
-            invest,
-            articlePrice,
-            invest / 1e8,
-            articlePriceIncreaseRate,
-            0,
-            0,
-            msg.sender
-        );
-        repository[research.id] = repo;
-        researchRequest[msg.sender].push(research);
-        researchById[research.id] = research;
-    }
 
     function setSPInstance(address instance) external onlyOwner {
         spInstance = ISP(instance);
@@ -125,35 +60,91 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         schemaId = schemaId_;
     }
 
-    function attestAuthorship(
-        string memory documentHash,
-        uint64 linkedAttestationId
-    ) external {
-        require(
-            msg.sender == owner() || authorAttestations[msg.sender] > 0,
-            "Not authorized to attest"
+    function createResearch(
+        string memory repo,
+        uint256 invest,
+        uint256 articlePrice,
+        uint256 articlePriceIncreaseRate
+    ) public {
+        require(verifiedResearchers[msg.sender], "Not authenticated");
+        if (researchRequest[msg.sender].length >= 5) revert ResearchCap();
+
+        Research memory newResearch = Research(
+            researchNumber,
+            ResearchState.developing,
+            invest,
+            articlePrice,
+            invest / 1e8, // Calculates sharePrice
+            articlePriceIncreaseRate,
+            0, // Initial funding
+            0, // Initial profit
+            msg.sender, // Owner of the research
+            repo // Assuming 'repo' is the document's CID
+        );
+        researchRequest[msg.sender].push(newResearch);
+        researchById[newResearch.id] = newResearch;
+        researchNumber++; // Increment research ID for the next entry
+
+        repository[newResearch.id] = repo; // Linking research ID to repository
+    }
+
+    function verifyResearcher(
+        address researcher /*uint64 attestationId*/
+    ) public onlyOwner {
+        verifiedResearchers[researcher] = true;
+        attestResearcherVerification(researcher);
+    }
+
+    function attestResearcherVerification(address researcher) public onlyOwner {
+        bytes[] memory recipients = new bytes[](1);
+        recipients[0] = abi.encode(researcher);
+
+        bool isVerified = true;
+
+        // Encode the data according to the schema
+        bytes memory encodedData = abi.encode(
+            researcher, // Address of the researcher
+            isVerified // The verification status
         );
 
-        bytes[] memory recipients = new bytes[](1);
-        recipients[0] = abi.encode(msg.sender);
-
-        Attestation memory a = Attestation({
+        Attestation memory verificationAttestation = Attestation({
             schemaId: schemaId,
-            linkedAttestationId: linkedAttestationId,
-            attestTimestamp: 0,
+            linkedAttestationId: 0,
+            attestTimestamp: 0, // Using the actual timestamp
             revokeTimestamp: 0,
             attester: address(this),
-            validUntil: 0,
+            validUntil: 0, // Setting a 1 year validity
             dataLocation: DataLocation.IPFS,
             revoked: false,
             recipients: recipients,
-            data: abi.encode(documentHash)
+            data: encodedData // Using the properly encoded data
         });
 
-        uint64 attestationId = spInstance.attest(a, "", "", "");
-        authorAttestations[msg.sender] = attestationId; // Update the mapping with the new attestation ID
-        emit AuthorshipAttested(msg.sender, attestationId, documentHash);
+        // Now we make the attestation call and obtain the attestationId
+        uint64 attestationId = spInstance.attest(
+            verificationAttestation,
+            "",
+            "",
+            ""
+        );
+
+        // Store the attestationId in a mapping if needed
+        researcherVerificationAttestations[researcher] = attestationId;
+
+        // Emit an event for the attestation
+        emit ResearcherVerificationAttested(researcher, attestationId);
     }
+
+    // Event to log the attestation of a researcher's verification
+    event ResearcherVerificationAttested(
+        address indexed researcher,
+        uint64 attestationId
+    );
+
+    event VerificationAttested(
+        address indexed researcher,
+        uint64 attestationId
+    );
 
     function _update(
         address from,
@@ -169,10 +160,4 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         // Custom logic after the balance update
         // For example, you can perform additional state changes or emit events
     }
-
-    event AuthorshipAttested(
-        address author,
-        uint64 attestationId,
-        string documentHash
-    );
 }

@@ -89,6 +89,14 @@ declare module "hardhat/types/runtime" {
       name: "Scientify",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Scientify__factory>;
+    getContractFactory(
+      name: "Scientify",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Scientify__factory>;
+    getContractFactory(
+      name: "Scientify4",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Scientify4__factory>;
 
     getContractAt(
       name: "ISP",
@@ -185,6 +193,16 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.Scientify>;
+    getContractAt(
+      name: "Scientify",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Scientify>;
+    getContractAt(
+      name: "Scientify4",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Scientify4>;
 
     deployContract(
       name: "ISP",
@@ -262,6 +280,14 @@ declare module "hardhat/types/runtime" {
       name: "Scientify",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Scientify>;
+    deployContract(
+      name: "Scientify",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Scientify>;
+    deployContract(
+      name: "Scientify4",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Scientify4>;
 
     deployContract(
       name: "ISP",
@@ -358,6 +384,16 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Scientify>;
+    deployContract(
+      name: "Scientify",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Scientify>;
+    deployContract(
+      name: "Scientify4",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Scientify4>;
 
     // default types
     getContractFactory(
