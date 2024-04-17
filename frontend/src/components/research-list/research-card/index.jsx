@@ -35,20 +35,14 @@ export default function ResearchCard({
 
   return (
     <>
-      <Card
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          maxWidth: 320,
-        }}
-      >
+      <Card sx={{ height: "100%", maxWidth: 320 }}>
         <CardMedia
           component="img"
           sx={{ width: "100%", height: 120 }}
           image={image_url}
         />
-        <Box sx={{}}>
-          <CardContent sx={{}}>
+        <Box>
+          <CardContent>
             <Typography gutterBottom variant="h6" component="div">
               {name}
             </Typography>
@@ -60,7 +54,7 @@ export default function ResearchCard({
               {description}
             </Typography>
 
-            <Divider sx={{ margin: 0 }} variant="inset" />
+            <Divider sx={{ margin: 0, marginBottom: "auto" }} variant="inset" />
 
             <Typography sx={{ marginTop: 2, display: "flex" }}>
               Research Status: {getStatus()}
@@ -79,7 +73,7 @@ export default function ResearchCard({
               <Typography>Earnings: ${earnings}</Typography>
             </Box>
           </CardContent>
-          <CardActions>
+          <CardActions sx={{ display: "flex", alignItems: "stretch" }}>
             <Button variant="outlined" size="small">
               Details
             </Button>
