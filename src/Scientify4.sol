@@ -35,6 +35,7 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint256 funding;
         uint256 profit;
         address owner;
+        string documentCID; 
     }
 
     // mapping(string => address) public authenticatedResearchers;
@@ -52,9 +53,7 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
-    function verifyResearcher(
-        address researcher
-    ) public onlyOwner {
+    function verifyResearcher(address researcher) public onlyOwner {
         verifiedResearchers[researcher] = true;
         attestVerificationStatus(researcher);
     }
@@ -92,14 +91,12 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     );
 
     function createResearch(
-        string memory authentication,
         string memory repo,
         uint256 invest,
         uint256 articlePrice,
         uint256 articlePriceIncreaseRate
     ) public {
-        if (!verifiedResearchers[msg.sender])
-            revert NotAuthenticated();
+        if (!verifiedResearchers[msg.sender]) revert NotAuthenticated();
         if (researchRequest[msg.sender].length > 4) revert ResearchCap();
         Research memory research = Research(
             researchNumber++,
@@ -110,11 +107,13 @@ contract Scientify is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             articlePriceIncreaseRate,
             0,
             0,
-            msg.sender
+            msg.sender,
+            repo
         );
         repository[research.id] = repo;
         researchRequest[msg.sender].push(research);
         researchById[research.id] = research;
+        repo
     }
 
     function setSPInstance(address instance) external onlyOwner {
