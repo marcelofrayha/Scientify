@@ -12,8 +12,10 @@ export const researchData = [
       },
     ],
     cost: 100,
-    investment: 34,
+    investment: 100,
     earnings: 12,
+    is_ready: true,
+    status: "in_progress",
   },
   {
     id: "2",
@@ -32,8 +34,10 @@ export const researchData = [
       },
     ],
     cost: 100,
-    investment: 34,
+    investment: 100,
     earnings: 12,
+    is_ready: false,
+    status: "ready",
   },
   {
     id: "3",
@@ -49,7 +53,9 @@ export const researchData = [
     ],
     cost: 100,
     investment: 34,
-    earnings: 12,
+    earnings: 100,
+    is_ready: true,
+    status: "paid",
   },
   {
     id: "4",
@@ -74,6 +80,8 @@ export const researchData = [
     cost: 100,
     investment: 34,
     earnings: 12,
+    is_ready: false,
+    status: "in_progress",
   },
   {
     id: "5",
@@ -90,5 +98,7 @@ export const researchData = [
     cost: 100,
     investment: 34,
     earnings: 12,
+    is_ready: false,
+    status: "paid",
   },
 ];

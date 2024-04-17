@@ -8,6 +8,9 @@ import Divider from "@mui/material/Divider";
 import { Box } from "@mui/material";
 import { useState } from "react";
 import InvestModal from "../../invest-modal";
+import RotateRightIcon from "@mui/icons-material/RotateRight";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import PaidIcon from "@mui/icons-material/Paid";
 
 export default function ResearchCard({
   image_url,
@@ -17,10 +20,18 @@ export default function ResearchCard({
   cost,
   investment,
   earnings,
+  is_ready,
+  status,
 }) {
   const [investModalOpen, setInvestModalOpen] = useState(false);
   const handleOpenInvestModal = () => setInvestModalOpen(true);
   const handleCloseInvestModal = () => setInvestModalOpen(false);
+
+  function getStatus() {
+    if (status === "in_progress") return <RotateRightIcon />;
+    if (status === "ready") return <CheckCircleOutlineIcon />;
+    if (status === "paid") return <PaidIcon />;
+  }
 
   return (
     <>
@@ -51,6 +62,10 @@ export default function ResearchCard({
 
             <Divider sx={{ margin: 0 }} variant="inset" />
 
+            <Typography sx={{ marginTop: 2, display: "flex" }}>
+              Research Status: {getStatus()}
+            </Typography>
+
             <Box
               sx={{
                 display: "flex",
@@ -59,17 +74,36 @@ export default function ResearchCard({
                 marginTop: 2,
               }}
             >
-              <Typography>${cost}</Typography>
-              <Typography>${investment}</Typography>
-              <Typography>${earnings}</Typography>
+              <Typography>Total cost: ${cost}</Typography>
+              <Typography>Funds Invested: ${investment}</Typography>
+              <Typography>Earnings: ${earnings}</Typography>
             </Box>
           </CardContent>
           <CardActions>
-            <Button size="small">Read Article</Button>
-            <Button size="small" onClick={handleOpenInvestModal}>
-              Invest
+            <Button variant="outlined" size="small">
+              Details
             </Button>
-            <Button size="small">Burn Tokens</Button>
+            {is_ready && (
+              <Button variant="outlined" size="small">
+                Go to Article
+              </Button>
+            )}
+
+            {investment < cost && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleOpenInvestModal}
+              >
+                Invest
+              </Button>
+            )}
+
+            {earnings >= cost && (
+              <Button variant="outlined" size="small">
+                Burn Tokens
+              </Button>
+            )}
           </CardActions>
         </Box>
       </Card>
