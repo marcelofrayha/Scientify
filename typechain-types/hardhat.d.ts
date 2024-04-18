@@ -90,10 +90,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Scientify__factory>;
     getContractFactory(
-      name: "Scientify",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Scientify__factory>;
-    getContractFactory(
       name: "Scientify4",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Scientify4__factory>;
@@ -194,11 +190,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Scientify>;
     getContractAt(
-      name: "Scientify",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Scientify>;
-    getContractAt(
       name: "Scientify4",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -276,10 +267,6 @@ declare module "hardhat/types/runtime" {
       name: "Pausable",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Pausable>;
-    deployContract(
-      name: "Scientify",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Scientify>;
     deployContract(
       name: "Scientify",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -379,11 +366,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Pausable>;
-    deployContract(
-      name: "Scientify",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Scientify>;
     deployContract(
       name: "Scientify",
       args: any[],

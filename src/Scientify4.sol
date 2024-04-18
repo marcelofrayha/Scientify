@@ -109,7 +109,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             revokeTimestamp: 0,
             attester: address(this),
             validUntil: 0, // Setting a 1 year validity
-            dataLocation: DataLocation.IPFS,
+            dataLocation: DataLocation.ONCHAIN,
             revoked: false,
             recipients: recipients,
             data: encodedData // Using the properly encoded data
