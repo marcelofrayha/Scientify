@@ -61,6 +61,7 @@ export default function ResearchCard({
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
+              textAlign: "left",
             }}
           >
             <Typography gutterBottom variant="h6" component="div">
@@ -78,7 +79,7 @@ export default function ResearchCard({
           <Box>
             <Divider sx={{ margin: 0, marginBottom: "auto" }} variant="inset" />
             <Typography sx={{ marginTop: 2, display: "flex" }}>
-              Status: {getStatus()}
+              {getStatus()} {status}
             </Typography>
 
             <Box
@@ -107,30 +108,34 @@ export default function ResearchCard({
         <CardActions
           sx={{ display: "flex", alignItems: "stretch", mt: "auto" }}
         >
-          <Button variant="outlined" size="small">
+          <Button variant="text" size="small">
             Details
           </Button>
-          {is_ready && (
-            <Button variant="outlined" size="small">
-              Go to Article
-            </Button>
-          )}
 
-          {investment < cost && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleOpenInvestModal}
-            >
-              Invest
-            </Button>
-          )}
+          <Button
+            disabled={is_ready ? false : true}
+            variant="text"
+            size="small"
+          >
+            Article
+          </Button>
 
-          {earnings >= cost && (
-            <Button variant="outlined" size="small">
-              Burn Tokens
-            </Button>
-          )}
+          <Button
+            disabled={investment < cost ? false : true}
+            variant="text"
+            size="small"
+            onClick={handleOpenInvestModal}
+          >
+            Invest
+          </Button>
+
+          <Button
+            disabled={earnings >= cost ? false : true}
+            variant="text"
+            size="small"
+          >
+            Burn Tokens
+          </Button>
         </CardActions>
       </Card>
       <InvestModal
