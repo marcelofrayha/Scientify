@@ -1,10 +1,11 @@
 import { Grid } from "@mui/material";
 import { researchData } from "../../data/researchData";
 import ResearchCard from "./research-card";
+import Masonry from "@mui/lab/Masonry";
 
 export default function ResearchList() {
   return (
-    <Grid container spacing={2} style={{ textAlign: "left" }}>
+    <Masonry columns={3} spacing={2}>
       {researchData.map((research) => (
         <Grid item key={research.id} xs="auto">
           <ResearchCard
@@ -20,6 +21,6 @@ export default function ResearchList() {
           />
         </Grid>
       ))}
-    </Grid>
+    </Masonry>
   );
 }

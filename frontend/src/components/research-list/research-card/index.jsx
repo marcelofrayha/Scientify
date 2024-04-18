@@ -37,7 +37,6 @@ export default function ResearchCard({
     <>
       <Card
         sx={{
-          height: "100%",
           maxWidth: 320,
           display: "flex",
           flexDirection: "column",
