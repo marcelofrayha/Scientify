@@ -5,7 +5,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import { Box } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { useState } from "react";
 import InvestModal from "../../invest-modal";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
@@ -35,14 +35,27 @@ export default function ResearchCard({
 
   return (
     <>
-      <Card sx={{ height: "100%", maxWidth: 320 }}>
+      <Card
+        sx={{
+          height: "100%",
+          maxWidth: 320,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <CardMedia
           component="img"
           sx={{ width: "100%", height: 120 }}
           image={image_url}
         />
-        <Box>
-          <CardContent>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <Typography gutterBottom variant="h6" component="div">
               {name}
             </Typography>
@@ -53,9 +66,10 @@ export default function ResearchCard({
             <Typography gutterBottom variant="body2" color="text.secondary">
               {description}
             </Typography>
+          </Box>
 
+          <Box>
             <Divider sx={{ margin: 0, marginBottom: "auto" }} variant="inset" />
-
             <Typography sx={{ marginTop: 2, display: "flex" }}>
               Research Status: {getStatus()}
             </Typography>
@@ -72,34 +86,36 @@ export default function ResearchCard({
               <Typography>Funds Invested: ${investment}</Typography>
               <Typography>Earnings: ${earnings}</Typography>
             </Box>
-          </CardContent>
-          <CardActions sx={{ display: "flex", alignItems: "stretch" }}>
+          </Box>
+        </CardContent>
+        <CardActions
+          sx={{ display: "flex", alignItems: "stretch", mt: "auto" }}
+        >
+          <Button variant="outlined" size="small">
+            Details
+          </Button>
+          {is_ready && (
             <Button variant="outlined" size="small">
-              Details
+              Go to Article
             </Button>
-            {is_ready && (
-              <Button variant="outlined" size="small">
-                Go to Article
-              </Button>
-            )}
+          )}
 
-            {investment < cost && (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={handleOpenInvestModal}
-              >
-                Invest
-              </Button>
-            )}
+          {investment < cost && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleOpenInvestModal}
+            >
+              Invest
+            </Button>
+          )}
 
-            {earnings >= cost && (
-              <Button variant="outlined" size="small">
-                Burn Tokens
-              </Button>
-            )}
-          </CardActions>
-        </Box>
+          {earnings >= cost && (
+            <Button variant="outlined" size="small">
+              Burn Tokens
+            </Button>
+          )}
+        </CardActions>
       </Card>
       <InvestModal
         open={investModalOpen}
