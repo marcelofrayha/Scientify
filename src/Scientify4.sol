@@ -47,19 +47,34 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     mapping(uint256 => string) private repository;
     mapping(address => uint64) public researcherVerificationAttestations;
 
-    ISP public spInstance;
-    uint64 public schemaId;
+    // ISP public spInstance;
+    ISP public spInstance = ISP(0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5);
+
+    // uint64 public schemaId;
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
-    function setSPInstance(address instance) external onlyOwner {
-        //ETH Sepolia: 0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5
-        spInstance = ISP(instance);
-    }
+    // function setSPInstance(address instance) external onlyOwner {
+    //     //ETH Sepolia: 0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5
+    //     spInstance = ISP(instance);
+    // }
 
-    function setSchemaID(uint64 schemaId_) external onlyOwner {
-        schemaId = schemaId_;
-    }
+    // function setSchemaID(uint64 schemaId_) external onlyOwner {
+    //     schemaId = schemaId_;
+    // }
+    // Event to log the attestation of a researcher's verification
+    event ResearcherVerificationAttested(
+        address indexed researcher,
+        uint64 attestationId
+    );
+
+    event VerificationAttested(
+        address indexed researcher,
+        uint64 attestationId
+    );
+
+    // Event to log the creation of new research
+    event ResearchCreated(uint256 researchId, address researcher);
 
     function createResearch(
         string memory repo,
@@ -67,26 +82,40 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint256 articlePrice,
         uint256 articlePriceIncreaseRate
     ) public {
+        // Check if the sender is a verified researcher
         require(verifiedResearchers[msg.sender], "Not authenticated");
-        if (researchRequest[msg.sender].length >= 5) revert ResearchCap();
 
-        Research memory newResearch = Research(
-            researchNumber,
-            ResearchState.developing,
-            invest,
-            articlePrice,
-            invest / 1e8, // Calculates sharePrice
-            articlePriceIncreaseRate,
-            0, // Initial funding
-            0, // Initial profit
-            msg.sender, // Owner of the research
-            repo // Assuming 'repo' is the document's CID
-        );
+        // Ensure that the sender has not exceeded the research request cap
+        require(researchRequest[msg.sender].length < 5, "ResearchCap");
+
+        // Ensure invest is greater than or equal to 1e8 to prevent division by zero
+        require(invest >= 1e8, "Investment too small");
+
+        // Calculate the sharePrice safely
+        uint256 sharePrice = invest / 1e8;
+
+        // Proceed to create new research
+        Research memory newResearch = Research({
+            id: researchNumber,
+            state: ResearchState.developing,
+            investment: invest,
+            articlePrice: articlePrice,
+            sharePrice: sharePrice,
+            articlePriceIncreaseRate: articlePriceIncreaseRate,
+            funding: 0,
+            profit: 0,
+            owner: msg.sender,
+            documentCID: repo
+        });
+
         researchRequest[msg.sender].push(newResearch);
-        researchById[newResearch.id] = newResearch;
+        researchById[researchNumber] = newResearch;
         researchNumber++; // Increment research ID for the next entry
 
         repository[newResearch.id] = repo; // Linking research ID to repository
+
+        // Emit an event for successful research creation
+        emit ResearchCreated(newResearch.id, msg.sender);
     }
 
     function verifyResearcher(address researcher) public onlyOwner {
@@ -95,6 +124,13 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function attestResearcherVerification(address researcher) public onlyOwner {
+        //in the function above we're checking if the Researcher has been verified
+        // verifiedResearchers[researcher] = true;
+
+        //test
+        //0x34
+        uint64 schemaId = 52;
+
         bytes[] memory recipients = new bytes[](1);
         recipients[0] = abi.encode(researcher);
 
@@ -128,19 +164,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         emit ResearcherVerificationAttested(researcher, attestationId);
     }
 
-    // Event to log the attestation of a researcher's verification
-    event ResearcherVerificationAttested(
-        address indexed researcher,
-        uint64 attestationId
-    );
-
-    event VerificationAttested(
-        address indexed researcher,
-        uint64 attestationId
-    );
-
     //Research Author Attestation
-
     // Function to attest to or endorse the authorship of a research paper
     function attestResearchAuthor(
         uint256 researchId,
@@ -156,6 +180,12 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         // Fetch the research details
         Research storage research = researchById[researchId];
         require(research.id != 0, "Research does not exist");
+
+        //test change this
+        //0x37 - schema OnChain&IPFS
+        uint64 schemaId = 55;
+
+        //test
 
         // Encode the CID for saving to attestation.data
         bytes memory encodedData = abi.encode(cid);

@@ -26,6 +26,7 @@ import type {
 export interface Scientify4Interface extends Interface {
   getFunction(
     nameOrSignature:
+      | "attestResearchAuthor"
       | "attestResearcherVerification"
       | "balanceOf"
       | "balanceOfBatch"
@@ -41,10 +42,7 @@ export interface Scientify4Interface extends Interface {
       | "researcherVerificationAttestations"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
-      | "schemaId"
       | "setApprovalForAll"
-      | "setSPInstance"
-      | "setSchemaID"
       | "spInstance"
       | "supportsInterface"
       | "transferOwnership"
@@ -58,6 +56,7 @@ export interface Scientify4Interface extends Interface {
       | "ApprovalForAll"
       | "OwnershipTransferred"
       | "Paused"
+      | "ResearchCreated"
       | "ResearcherVerificationAttested"
       | "TransferBatch"
       | "TransferSingle"
@@ -66,6 +65,10 @@ export interface Scientify4Interface extends Interface {
       | "VerificationAttested"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "attestResearchAuthor",
+    values: [BigNumberish, string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "attestResearcherVerification",
     values: [AddressLike]
@@ -126,18 +129,9 @@ export interface Scientify4Interface extends Interface {
     functionFragment: "safeTransferFrom",
     values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "schemaId", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setApprovalForAll",
     values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSPInstance",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSchemaID",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "spInstance",
@@ -161,6 +155,10 @@ export interface Scientify4Interface extends Interface {
     values: [AddressLike]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "attestResearchAuthor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "attestResearcherVerification",
     data: BytesLike
@@ -206,17 +204,8 @@ export interface Scientify4Interface extends Interface {
     functionFragment: "safeTransferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "schemaId", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setApprovalForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSPInstance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSchemaID",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "spInstance", data: BytesLike): Result;
@@ -279,6 +268,19 @@ export namespace PausedEvent {
   export type OutputTuple = [account: string];
   export interface OutputObject {
     account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace ResearchCreatedEvent {
+  export type InputTuple = [researchId: BigNumberish, researcher: AddressLike];
+  export type OutputTuple = [researchId: bigint, researcher: string];
+  export interface OutputObject {
+    researchId: bigint;
+    researcher: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -442,6 +444,12 @@ export interface Scientify4 extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  attestResearchAuthor: TypedContractMethod<
+    [researchId: BigNumberish, cid: string, linkedAttestationId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   attestResearcherVerification: TypedContractMethod<
     [researcher: AddressLike],
     [void],
@@ -585,22 +593,8 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
 
-  schemaId: TypedContractMethod<[], [bigint], "view">;
-
   setApprovalForAll: TypedContractMethod<
     [operator: AddressLike, approved: boolean],
-    [void],
-    "nonpayable"
-  >;
-
-  setSPInstance: TypedContractMethod<
-    [instance: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  setSchemaID: TypedContractMethod<
-    [schemaId_: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -637,6 +631,13 @@ export interface Scientify4 extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "attestResearchAuthor"
+  ): TypedContractMethod<
+    [researchId: BigNumberish, cid: string, linkedAttestationId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "attestResearcherVerification"
   ): TypedContractMethod<[researcher: AddressLike], [void], "nonpayable">;
@@ -788,21 +789,12 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "schemaId"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "setApprovalForAll"
   ): TypedContractMethod<
     [operator: AddressLike, approved: boolean],
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "setSPInstance"
-  ): TypedContractMethod<[instance: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setSchemaID"
-  ): TypedContractMethod<[schemaId_: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "spInstance"
   ): TypedContractMethod<[], [string], "view">;
@@ -842,6 +834,13 @@ export interface Scientify4 extends BaseContract {
     PausedEvent.InputTuple,
     PausedEvent.OutputTuple,
     PausedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ResearchCreated"
+  ): TypedContractEvent<
+    ResearchCreatedEvent.InputTuple,
+    ResearchCreatedEvent.OutputTuple,
+    ResearchCreatedEvent.OutputObject
   >;
   getEvent(
     key: "ResearcherVerificationAttested"
@@ -918,6 +917,17 @@ export interface Scientify4 extends BaseContract {
       PausedEvent.InputTuple,
       PausedEvent.OutputTuple,
       PausedEvent.OutputObject
+    >;
+
+    "ResearchCreated(uint256,address)": TypedContractEvent<
+      ResearchCreatedEvent.InputTuple,
+      ResearchCreatedEvent.OutputTuple,
+      ResearchCreatedEvent.OutputObject
+    >;
+    ResearchCreated: TypedContractEvent<
+      ResearchCreatedEvent.InputTuple,
+      ResearchCreatedEvent.OutputTuple,
+      ResearchCreatedEvent.OutputObject
     >;
 
     "ResearcherVerificationAttested(address,uint64)": TypedContractEvent<
