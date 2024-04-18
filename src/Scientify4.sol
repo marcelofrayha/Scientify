@@ -89,7 +89,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function verifyResearcher(
-        address researcher /*uint64 attestationId*/
+        address researcher 
     ) public onlyOwner {
         verifiedResearchers[researcher] = true;
         attestResearcherVerification(researcher);
@@ -98,14 +98,9 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     function attestResearcherVerification(address researcher) public onlyOwner {
         bytes[] memory recipients = new bytes[](1);
         recipients[0] = abi.encode(researcher);
-
-        bool isVerified = true;
-
-        // Encode the data according to the schema
-        bytes memory encodedData = abi.encode(
-            researcher, // Address of the researcher
-            isVerified // The verification status
-        );
+        
+        //schema only has two fields: ResearcherAddress and Verified
+        bytes memory encodedData = abi.encode(researcher, true);
 
         Attestation memory verificationAttestation = Attestation({
             schemaId: schemaId,
