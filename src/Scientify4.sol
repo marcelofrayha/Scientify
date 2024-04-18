@@ -53,6 +53,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
     function setSPInstance(address instance) external onlyOwner {
+        //ETH Sepolia: 0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5
         spInstance = ISP(instance);
     }
 
@@ -88,9 +89,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         repository[newResearch.id] = repo; // Linking research ID to repository
     }
 
-    function verifyResearcher(
-        address researcher 
-    ) public onlyOwner {
+    function verifyResearcher(address researcher) public onlyOwner {
         verifiedResearchers[researcher] = true;
         attestResearcherVerification(researcher);
     }
@@ -98,21 +97,20 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     function attestResearcherVerification(address researcher) public onlyOwner {
         bytes[] memory recipients = new bytes[](1);
         recipients[0] = abi.encode(researcher);
-        
-        //schema only has two fields: ResearcherAddress and Verified
+
         bytes memory encodedData = abi.encode(researcher, true);
 
         Attestation memory verificationAttestation = Attestation({
             schemaId: schemaId,
             linkedAttestationId: 0,
-            attestTimestamp: 0, // Using the actual timestamp
+            attestTimestamp: 0,
             revokeTimestamp: 0,
             attester: address(this),
-            validUntil: 0, // Setting a 1 year validity
+            validUntil: 0,
             dataLocation: DataLocation.ONCHAIN,
             revoked: false,
             recipients: recipients,
-            data: encodedData // Using the properly encoded data
+            data: encodedData
         });
 
         // Now we make the attestation call and obtain the attestationId
@@ -140,6 +138,57 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         address indexed researcher,
         uint64 attestationId
     );
+
+    //Research Author Attestation
+
+    // Function to attest to or endorse the authorship of a research paper
+    function attestResearchAuthor(
+        uint256 researchId,
+        string memory cid,
+        uint64 linkedAttestationId // Use 0 if it's an initial attestation
+    ) public {
+        // Only the owner or a verified researcher can call this function
+        require(
+            msg.sender == owner() || verifiedResearchers[msg.sender],
+            "Caller must be owner or verified researcher"
+        );
+
+        // Fetch the research details
+        Research storage research = researchById[researchId];
+        require(research.id != 0, "Research does not exist");
+
+        // Encode the CID for saving to attestation.data
+        bytes memory encodedData = abi.encode(cid);
+
+        // Prepare the recipients array
+        bytes[] memory recipients = new bytes[](1);
+        recipients[0] = abi.encode(research.owner); // Encoding the owner of the research as the recipient
+
+        // Create the attestation or endorsement
+        Attestation memory researchAttestation = Attestation({
+            schemaId: schemaId,
+            linkedAttestationId: linkedAttestationId, // This links to a previous attestation if it's an endorsement
+            attestTimestamp: 0,
+            revokeTimestamp: 0,
+            attester: msg.sender,
+            validUntil: 0, // Optional: set an expiration if required
+            dataLocation: DataLocation.IPFS,
+            revoked: false,
+            recipients: recipients,
+            data: encodedData
+        });
+
+        // Make the attestation call and obtain the attestationId
+        uint64 attestationId = spInstance.attest(
+            researchAttestation,
+            "",
+            "",
+            ""
+        );
+
+        // Emit an event for the attestation or endorsement
+        emit VerificationAttested(msg.sender, attestationId);
+    }
 
     function _update(
         address from,
