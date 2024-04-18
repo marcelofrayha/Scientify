@@ -14,7 +14,6 @@ export const researchData = [
     cost: 100,
     investment: 100,
     earnings: 12,
-    is_ready: true,
     status: "in_progress",
   },
   {
@@ -34,9 +33,8 @@ export const researchData = [
       },
     ],
     cost: 100,
-    investment: 100,
-    earnings: 12,
-    is_ready: false,
+    investment: 87,
+    earnings: 110,
     status: "ready",
   },
   {
@@ -51,10 +49,9 @@ export const researchData = [
         url: "www.lattes.com.br/marcelo",
       },
     ],
-    cost: 100,
+    cost: 1200,
     investment: 34,
     earnings: 100,
-    is_ready: true,
     status: "paid",
   },
   {
@@ -80,7 +77,6 @@ export const researchData = [
     cost: 100,
     investment: 34,
     earnings: 12,
-    is_ready: false,
     status: "in_progress",
   },
   {
@@ -98,7 +94,6 @@ export const researchData = [
     cost: 100,
     investment: 34,
     earnings: 12,
-    is_ready: false,
     status: "paid",
   },
 ];

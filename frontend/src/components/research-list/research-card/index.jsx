@@ -20,7 +20,6 @@ export default function ResearchCard({
   cost,
   investment,
   earnings,
-  is_ready,
   status,
 }) {
   const [investModalOpen, setInvestModalOpen] = useState(false);
@@ -113,7 +112,7 @@ export default function ResearchCard({
           </Button>
 
           <Button
-            disabled={is_ready ? false : true}
+            disabled={status === "ready" ? false : true}
             variant="text"
             size="small"
           >

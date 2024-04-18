@@ -45,10 +45,12 @@ export default function InvestModal({
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        <Typography id="modal-modal-title" variant="h4" component="div">
+          Invest
+        </Typography>
         <Typography id="modal-modal-title" variant="h6" component="div">
           {title}
         </Typography>
-        <Divider sx={{ margin: 0 }} variant="inset" />
         <Box sx={{ marginTop: 3 }}>
           <Typography id="modal-modal-description" sx={{}}>
             NFTs to Mint

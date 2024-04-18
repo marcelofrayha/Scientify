@@ -16,7 +16,6 @@ export default function ResearchList() {
             cost={research.cost}
             investment={research.investment}
             earnings={research.earnings}
-            is_ready={research.is_ready}
             status={research.status}
           />
         </Grid>
