@@ -33,6 +33,14 @@ export default function ResearchCard({
     if (status === "paid") return <PaidIcon />;
   }
 
+  const styles = {
+    costLine: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+  };
+
   return (
     <>
       <Card
@@ -70,20 +78,29 @@ export default function ResearchCard({
           <Box>
             <Divider sx={{ margin: 0, marginBottom: "auto" }} variant="inset" />
             <Typography sx={{ marginTop: 2, display: "flex" }}>
-              Research Status: {getStatus()}
+              Status: {getStatus()}
             </Typography>
 
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: "column",
                 justifyContent: "space-evenly",
                 marginTop: 2,
               }}
             >
-              <Typography>Total cost: ${cost}</Typography>
-              <Typography>Funds Invested: ${investment}</Typography>
-              <Typography>Earnings: ${earnings}</Typography>
+              <Box sx={styles.costLine}>
+                <Typography>Total cost</Typography>
+                <Typography>${cost}</Typography>
+              </Box>
+              <Box sx={styles.costLine}>
+                <Typography>Funds Invested</Typography>
+                <Typography>${investment}</Typography>
+              </Box>
+              <Box sx={styles.costLine}>
+                <Typography>Earnings</Typography>
+                <Typography>${earnings}</Typography>
+              </Box>
             </Box>
           </Box>
         </CardContent>
