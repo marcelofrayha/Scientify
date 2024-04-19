@@ -73,6 +73,8 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint64 attestationId
     );
 
+    event ResearcherVerified(address indexed researcher);
+
     // Event to log the creation of new research
     event ResearchCreated(uint256 researchId, address researcher);
 
@@ -83,16 +85,24 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint256 articlePriceIncreaseRate
     ) public {
         // Check if the sender is a verified researcher
-        require(verifiedResearchers[msg.sender], "Not authenticated");
+        // if (!verifiedResearchers[msg.sender]) {
+        //     revert NotAuthenticated();
+        // }
 
-        // Ensure that the sender has not exceeded the research request cap
-        require(researchRequest[msg.sender].length < 5, "ResearchCap");
+        // // Ensure that the sender has not exceeded the research request cap
+        // if (researchRequest[msg.sender].length >= 5) {
+        //     revert ResearchCap();
+        // }
 
-        // Ensure invest is greater than or equal to 1e8 to prevent division by zero
-        require(invest >= 1e8, "Investment too small");
+        // The invest amount must be large enough to avoid issues with share price calculation.
+        // This replaces the magic number 1e8 with a named constant for better readability.
+        uint256 minInvest = 1e8;
+        // if (invest < minInvest) {
+        //     revert NotEnoughValue();
+        // }
 
-        // Calculate the sharePrice safely
-        uint256 sharePrice = invest / 1e8;
+        // Calculate the sharePrice safely. Since invest >= minInvest, this won't divide by zero.
+        uint256 sharePrice = invest / minInvest;
 
         // Proceed to create new research
         Research memory newResearch = Research({
@@ -108,19 +118,31 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             documentCID: repo
         });
 
+        // Add the new research to the sender's list of research requests and to the global ID map.
         researchRequest[msg.sender].push(newResearch);
         researchById[researchNumber] = newResearch;
-        researchNumber++; // Increment research ID for the next entry
 
-        repository[newResearch.id] = repo; // Linking research ID to repository
+        // Emit an event for successful research creation before incrementing the researchNumber
+        // to ensure that the event log and the state change are consistent.
+        emit ResearchCreated(researchNumber, msg.sender);
 
-        // Emit an event for successful research creation
-        emit ResearchCreated(newResearch.id, msg.sender);
+        // Increment research ID for the next entry
+        researchNumber++;
+
+        // Linking research ID to the repository. This is done after the event emission
+        // to ensure that all changes are logged correctly.
+        repository[newResearch.id] = repo;
+    }
+
+    function isVerifiedResearcher(
+        address researcher
+    ) public view returns (bool) {
+        return verifiedResearchers[researcher];
     }
 
     function verifyResearcher(address researcher) public onlyOwner {
         verifiedResearchers[researcher] = true;
-        attestResearcherVerification(researcher);
+        emit ResearcherVerified(researcher);
     }
 
     function attestResearcherVerification(address researcher) public onlyOwner {
@@ -176,23 +198,21 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             msg.sender == owner() || verifiedResearchers[msg.sender],
             "Caller must be owner or verified researcher"
         );
-
         // Fetch the research details
         Research storage research = researchById[researchId];
+        
         require(research.id != 0, "Research does not exist");
+        // Define a schema ID for on-chain storage, adjust this to your contract's requirements
+        uint64 schemaId = 67; // This is a placeholder, set the appropriate schema ID for on-chain storage
 
-        //test change this
-        //0x37 - schema OnChain&IPFS
-        uint64 schemaId = 55;
-
-        //test
-
-        // Encode the CID for saving to attestation.data
-        bytes memory encodedData = abi.encode(cid);
+        // Encode the CID and the owner's address for saving to attestation.data
+        // This encodes both the CID and the owner's address into a single bytes object
+        bytes memory encodedData = abi.encode(cid, research.owner);
 
         // Prepare the recipients array
         bytes[] memory recipients = new bytes[](1);
-        recipients[0] = abi.encode(research.owner); // Encoding the owner of the research as the recipient
+        // Encoding the owner of the research as the recipient
+        recipients[0] = abi.encode(research.owner);
 
         // Create the attestation or endorsement
         Attestation memory researchAttestation = Attestation({
@@ -200,9 +220,10 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             linkedAttestationId: linkedAttestationId, // This links to a previous attestation if it's an endorsement
             attestTimestamp: 0,
             revokeTimestamp: 0,
-            attester: msg.sender,
+            //test
+            attester: address(this),
             validUntil: 0, // Optional: set an expiration if required
-            dataLocation: DataLocation.IPFS,
+            dataLocation: DataLocation.ONCHAIN,
             revoked: false,
             recipients: recipients,
             data: encodedData

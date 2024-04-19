@@ -34,6 +34,7 @@ export interface Scientify4Interface extends Interface {
       | "burnBatch"
       | "createResearch"
       | "isApprovedForAll"
+      | "isVerifiedResearcher"
       | "owner"
       | "paused"
       | "renounceOwnership"
@@ -58,6 +59,7 @@ export interface Scientify4Interface extends Interface {
       | "Paused"
       | "ResearchCreated"
       | "ResearcherVerificationAttested"
+      | "ResearcherVerified"
       | "TransferBatch"
       | "TransferSingle"
       | "URI"
@@ -96,6 +98,10 @@ export interface Scientify4Interface extends Interface {
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isVerifiedResearcher",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
@@ -176,6 +182,10 @@ export interface Scientify4Interface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isVerifiedResearcher",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -297,6 +307,18 @@ export namespace ResearcherVerificationAttestedEvent {
   export interface OutputObject {
     researcher: string;
     attestationId: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace ResearcherVerifiedEvent {
+  export type InputTuple = [researcher: AddressLike];
+  export type OutputTuple = [researcher: string];
+  export interface OutputObject {
+    researcher: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -497,6 +519,12 @@ export interface Scientify4 extends BaseContract {
     "view"
   >;
 
+  isVerifiedResearcher: TypedContractMethod<
+    [researcher: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   owner: TypedContractMethod<[], [string], "view">;
 
   paused: TypedContractMethod<[], [boolean], "view">;
@@ -689,6 +717,9 @@ export interface Scientify4 extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "isVerifiedResearcher"
+  ): TypedContractMethod<[researcher: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -850,6 +881,13 @@ export interface Scientify4 extends BaseContract {
     ResearcherVerificationAttestedEvent.OutputObject
   >;
   getEvent(
+    key: "ResearcherVerified"
+  ): TypedContractEvent<
+    ResearcherVerifiedEvent.InputTuple,
+    ResearcherVerifiedEvent.OutputTuple,
+    ResearcherVerifiedEvent.OutputObject
+  >;
+  getEvent(
     key: "TransferBatch"
   ): TypedContractEvent<
     TransferBatchEvent.InputTuple,
@@ -939,6 +977,17 @@ export interface Scientify4 extends BaseContract {
       ResearcherVerificationAttestedEvent.InputTuple,
       ResearcherVerificationAttestedEvent.OutputTuple,
       ResearcherVerificationAttestedEvent.OutputObject
+    >;
+
+    "ResearcherVerified(address)": TypedContractEvent<
+      ResearcherVerifiedEvent.InputTuple,
+      ResearcherVerifiedEvent.OutputTuple,
+      ResearcherVerifiedEvent.OutputObject
+    >;
+    ResearcherVerified: TypedContractEvent<
+      ResearcherVerifiedEvent.InputTuple,
+      ResearcherVerifiedEvent.OutputTuple,
+      ResearcherVerifiedEvent.OutputObject
     >;
 
     "TransferBatch(address,address,address,uint256[],uint256[])": TypedContractEvent<
