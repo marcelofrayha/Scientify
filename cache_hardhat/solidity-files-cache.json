@@ -2039,8 +2039,8 @@
       ]
     },
     "/Users/jorgeramirez/Downloads/ScalingETH2024/Scientify/src/Scientify4.sol": {
-      "lastModificationDate": 1713558241880,
-      "contentHash": "9b60968ecc943f5726a6e648a8f8db9c",
+      "lastModificationDate": 1713562165539,
+      "contentHash": "d8af88e6cfcddd1b02b26e346051f572",
       "sourceName": "src/Scientify4.sol",
       "solcConfig": {
         "version": "0.8.25",

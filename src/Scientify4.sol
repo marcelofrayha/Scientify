@@ -48,7 +48,9 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     mapping(address => uint64) public researcherVerificationAttestations;
 
     // ISP public spInstance;
-    ISP public spInstance = ISP(0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5);
+    // ISP public spInstance = ISP(0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5);
+    //Arbitrum Seplia
+    ISP public spInstance = ISP(0x4e4af2a21ebf62850fD99Eb6253E1eFBb56098cD);
 
     // uint64 public schemaId;
 
@@ -146,12 +148,12 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function attestResearcherVerification(address researcher) public onlyOwner {
-        //in the function above we're checking if the Researcher has been verified
-        // verifiedResearchers[researcher] = true;
 
         //test
-        //0x34
-        uint64 schemaId = 52;
+        //ethereum sepolia
+        // uint64 schemaId = 52;
+        //arbitrum sepolia
+        uint64 schemaId = 30;
 
         bytes[] memory recipients = new bytes[](1);
         recipients[0] = abi.encode(researcher);
@@ -202,8 +204,11 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         Research storage research = researchById[researchId];
         
         require(research.id != 0, "Research does not exist");
-        // Define a schema ID for on-chain storage, adjust this to your contract's requirements
-        uint64 schemaId = 67; // This is a placeholder, set the appropriate schema ID for on-chain storage
+
+        //ethereum sepolia
+        // uint64 schemaId = 67; 
+        //arbitrum sepolia
+        uint64 schemaId = 31;
 
         // Encode the CID and the owner's address for saving to attestation.data
         // This encodes both the CID and the owner's address into a single bytes object
