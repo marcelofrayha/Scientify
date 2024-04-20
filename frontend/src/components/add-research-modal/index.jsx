@@ -1,10 +1,11 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { Button, Grid, Slider, TextField } from "@mui/material";
+import { Button, Grid, InputAdornment, Slider, TextField } from "@mui/material";
 import { Input } from "@mui/material";
 import { useState } from "react";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const style = {
   position: "absolute",
@@ -22,22 +23,19 @@ export default function AddResearchModal({ open, handleClose, setData }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [totalCost, setTotalCost] = useState(0);
-  const [authors, setAuthors] = useState([{ id: "" }]);
+  const [authors, setAuthors] = useState(["", ""]);
+
+  console.log("----- authors:", authors);
 
   const handleAddResearch = () => {
     setData((prevState) => [
       ...prevState,
       {
-        id: 123,
+        id: prevState.legth + 1,
         name: title,
         description: description,
         image_url: "https://picsum.photos/200/200?v=1",
-        authors: [
-          {
-            name: "Dr. Mei-Ling Chen",
-            url: "www.lattes.com.br/marcelo",
-          },
-        ],
+        authors: authors,
         cost: totalCost,
         investment: 0,
         earnings: 0,
@@ -47,7 +45,22 @@ export default function AddResearchModal({ open, handleClose, setData }) {
     handleClose();
   };
 
-  const handleAddAuthor = () => {};
+  const handleAddAuthor = () => {
+    setAuthors([...authors, ""]);
+  };
+
+  const handleAuthorChange = (event, index) => {
+    const { value } = event.target;
+    const editAuthors = [...authors];
+    editAuthors[index] = value;
+    setAuthors(editAuthors);
+  };
+
+  const deleteAuthorField = (index) => {
+    const editAuthors = [...authors];
+    editAuthors.splice(index, 1);
+    setAuthors(editAuthors);
+  };
 
   return (
     <Modal
@@ -94,14 +107,28 @@ export default function AddResearchModal({ open, handleClose, setData }) {
           <Typography id="modal-modal-description" sx={{}}>
             Author(s)
           </Typography>
-          {authors.map((author) => (
-            <Input
-              key={author.id}
-              sx={{ width: "100%" }}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-          ))}
+          <Box sx={{ maxHeight: "200px", overflow: "auto" }}>
+            {authors.map((author, index) => (
+              <TextField
+                key={index}
+                size="small"
+                sx={{ width: "100%", marginTop: 1 }}
+                value={author}
+                onChange={(event) => handleAuthorChange(event, index)}
+                InputProps={{
+                  endAdornment: index > 0 && (
+                    <InputAdornment
+                      sx={{ cursor: "pointer" }}
+                      position="end"
+                      onClick={deleteAuthorField}
+                    >
+                      <ClearIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            ))}
+          </Box>
 
           <PersonAddIcon
             sx={{ cursor: "pointer", marginTop: 1 }}
