@@ -9,8 +9,6 @@ import "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
 import "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
 
-//only Attest Researcher.
-// Clean Copy
 contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     error NotAuthenticated();
     error ResearchCap();
@@ -44,26 +42,19 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     mapping(address => bool) public verifiedResearchers;
     mapping(address => Research[]) public researchRequest;
     mapping(uint256 => Research) public researchById;
+    mapping (uint => address) public researchOwner;
     mapping(uint256 => string) private repository;
     mapping(address => uint64) public researcherVerificationAttestations;
 
-    // ISP public spInstance;
+    // Ethereum Sepolia
     // ISP public spInstance = ISP(0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5);
-    //Arbitrum Seplia
+    // Arbitrum Seplia
     ISP public spInstance = ISP(0x4e4af2a21ebf62850fD99Eb6253E1eFBb56098cD);
 
     // uint64 public schemaId;
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
-    // function setSPInstance(address instance) external onlyOwner {
-    //     //ETH Sepolia: 0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5
-    //     spInstance = ISP(instance);
-    // }
-
-    // function setSchemaID(uint64 schemaId_) external onlyOwner {
-    //     schemaId = schemaId_;
-    // }
     // Event to log the attestation of a researcher's verification
     event ResearcherVerificationAttested(
         address indexed researcher,
@@ -148,7 +139,6 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     }
 
     function attestResearcherVerification(address researcher) public onlyOwner {
-
         //test
         //ethereum sepolia
         // uint64 schemaId = 52;
@@ -202,11 +192,11 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         );
         // Fetch the research details
         Research storage research = researchById[researchId];
-        
+
         require(research.id != 0, "Research does not exist");
 
         //ethereum sepolia
-        // uint64 schemaId = 67; 
+        // uint64 schemaId = 67;
         //arbitrum sepolia
         uint64 schemaId = 31;
 
@@ -244,6 +234,66 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
 
         // Emit an event for the attestation or endorsement
         emit VerificationAttested(msg.sender, attestationId);
+    }
+
+        function fundResearch (uint id, uint amount) public payable {
+        if (msg.value < researchById[id].sharePrice * amount) revert NotEnoughValue();
+        Research storage research = researchById[id];
+        //changed this
+        //_mint
+       mint(msg.sender, id, amount, "");
+        research.funding += msg.value;
+        (bool success, ) = payable(researchOwner[id]).call{value: msg.value}("");
+        if (!success) revert PaymentFailed();
+        if (research.funding >= research.investment) researchById[id].state = ResearchState.developed;
+    }
+
+        function readArticle (uint id) public payable returns (string memory repo) {
+        Research storage research = researchById[id];
+        if (msg.value < research.articlePrice) revert NotEnoughValue();
+        research.articlePrice *= (1 + (research.articlePriceIncreaseRate / 100));
+        research.profit += msg.value;
+        if (research.profit >= research.investment) {
+         research.state = ResearchState.paid;
+         research.articlePrice = 0;
+        (bool success, ) = payable(msg.sender).call{value: research.profit - research.investment}("");
+        if (!success) revert PaymentFailed();
+        }
+        return repository[id];
+    }
+
+    function redeemToken (uint id) public payable {
+        Research storage research = researchById[id];
+        if (research.state != ResearchState.paid) revert NotLiquidable();
+        uint tokensOwned = balanceOf(msg.sender, id);
+        if (tokensOwned == 0) revert NoTokenBalance();
+        burn(msg.sender, id, tokensOwned);
+        (bool success, ) = payable(msg.sender).call{value : research.sharePrice * tokensOwned}("");
+        if (!success) revert PaymentFailed();
+    }
+
+    function setURI(string memory newuri) public onlyOwner {
+        _setURI(newuri);
+    }
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
+    }
+
+    function mint(address account, uint256 id, uint256 amount, bytes memory data)
+        internal
+    {
+        _mint(account, id, amount, data);
+    }
+
+    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
+        internal
+    {
+        _mintBatch(to, ids, amounts, data);
     }
 
     function _update(
