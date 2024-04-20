@@ -27,9 +27,24 @@ export default function ResearchCard({
   const handleCloseInvestModal = () => setInvestModalOpen(false);
 
   function getStatus() {
-    if (status === "in_progress") return <RotateRightIcon />;
-    if (status === "ready") return <CheckCircleOutlineIcon />;
-    if (status === "paid") return <PaidIcon />;
+    if (status === "in_progress")
+      return (
+        <div style={{ display: "flex", gap: 5 }}>
+          <RotateRightIcon /> In Progress
+        </div>
+      );
+    if (status === "ready")
+      return (
+        <div style={{ display: "flex", gap: 5 }}>
+          <CheckCircleOutlineIcon /> Ready
+        </div>
+      );
+    if (status === "paid")
+      return (
+        <div style={{ display: "flex", gap: 5 }}>
+          <PaidIcon /> Paid
+        </div>
+      );
   }
 
   const styles = {
@@ -78,7 +93,7 @@ export default function ResearchCard({
           <Box>
             <Divider sx={{ margin: 0, marginBottom: "auto" }} variant="inset" />
             <Typography sx={{ marginTop: 2, display: "flex" }}>
-              {getStatus()} {status}
+              {getStatus()}
             </Typography>
 
             <Box
