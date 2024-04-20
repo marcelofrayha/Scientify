@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { Button, Grid, InputAdornment, Slider, TextField } from "@mui/material";
+import { Button, InputAdornment, TextField } from "@mui/material";
 import { Input } from "@mui/material";
 import { useState } from "react";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -23,9 +23,7 @@ export default function AddResearchModal({ open, handleClose, setData }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [totalCost, setTotalCost] = useState(0);
-  const [authors, setAuthors] = useState(["", ""]);
-
-  console.log("----- authors:", authors);
+  const [authors, setAuthors] = useState([{ name: "" }]);
 
   const handleAddResearch = () => {
     setData((prevState) => [
@@ -46,13 +44,13 @@ export default function AddResearchModal({ open, handleClose, setData }) {
   };
 
   const handleAddAuthor = () => {
-    setAuthors([...authors, ""]);
+    setAuthors([...authors, { name: "" }]);
   };
 
   const handleAuthorChange = (event, index) => {
     const { value } = event.target;
     const editAuthors = [...authors];
-    editAuthors[index] = value;
+    editAuthors[index]["name"] = value;
     setAuthors(editAuthors);
   };
 
@@ -113,7 +111,7 @@ export default function AddResearchModal({ open, handleClose, setData }) {
                 key={index}
                 size="small"
                 sx={{ width: "100%", marginTop: 1 }}
-                value={author}
+                value={author.name}
                 onChange={(event) => handleAuthorChange(event, index)}
                 InputProps={{
                   endAdornment: index > 0 && (
