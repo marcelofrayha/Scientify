@@ -16,7 +16,11 @@ function App() {
   return (
     <>
       <h1>Scientify</h1>
-      <Button variant="contained" onClick={handleOpenAddResearchModal}>
+      <Button
+        sx={{ marginBottom: 3 }}
+        variant="contained"
+        onClick={handleOpenAddResearchModal}
+      >
         Add Research
       </Button>
       <ResearchList data={data} />

@@ -1,11 +1,10 @@
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import { Button, InputAdornment, TextField } from "@mui/material";
-import { Input } from "@mui/material";
-import { useState } from "react";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ClearIcon from "@mui/icons-material/Clear";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { Button, Input, InputAdornment, TextField } from "@mui/material";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
+import { useState } from "react";
 
 const style = {
   position: "absolute",
@@ -27,7 +26,6 @@ export default function AddResearchModal({ open, handleClose, setData }) {
 
   const handleAddResearch = () => {
     setData((prevState) => [
-      ...prevState,
       {
         id: prevState.legth + 1,
         name: title,
@@ -39,6 +37,7 @@ export default function AddResearchModal({ open, handleClose, setData }) {
         earnings: 0,
         status: "in_progress",
       },
+      ...prevState,
     ]);
     handleClose();
   };
