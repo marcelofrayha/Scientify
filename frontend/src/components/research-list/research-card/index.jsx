@@ -29,21 +29,21 @@ export default function ResearchCard({
   function getStatus() {
     if (status === "in_progress")
       return (
-        <div style={{ display: "flex", gap: 5 }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
           <RotateRightIcon /> In Progress
-        </div>
+        </Box>
       );
     if (status === "ready")
       return (
-        <div style={{ display: "flex", gap: 5 }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
           <CheckCircleOutlineIcon /> Ready
-        </div>
+        </Box>
       );
     if (status === "paid")
       return (
-        <div style={{ display: "flex", gap: 5 }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
           <PaidIcon /> Paid
-        </div>
+        </Box>
       );
   }
 

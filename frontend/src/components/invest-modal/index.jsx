@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { Button, Divider, Grid, Slider } from "@mui/material";
+import { Button, Grid, Slider, TextField } from "@mui/material";
 import { Input } from "@mui/material";
 import { useState } from "react";
 
@@ -51,31 +51,30 @@ export default function InvestModal({
         <Typography id="modal-modal-title" variant="h6" component="div">
           {title}
         </Typography>
+
         <Box sx={{ marginTop: 3 }}>
           <Typography id="modal-modal-description" sx={{}}>
             NFTs to Mint
           </Typography>
-          <Grid container spacing={3} alignItems="left">
-            <Grid item sm>
-              <Slider
-                value={investValue}
-                onChange={handleSliderChange}
-                min={0}
-                max={maxInvestment}
-              />
-            </Grid>
-            <Grid item xs>
-              <Input
-                type="number"
-                size="small"
-                value={investValue}
-                onBlur={handleBlur}
-                onChange={handleInputChange}
-                placeholder="NFTs to mint"
-                inputProps={{ max: maxInvestment }}
-              />
-            </Grid>
-          </Grid>
+          <Box sx={{ display: "flex", gap: 3 }}>
+            <TextField
+              sx={{ width: "30%" }}
+              type="number"
+              size="small"
+              value={investValue}
+              onBlur={handleBlur}
+              onChange={handleInputChange}
+              placeholder="NFTs to mint"
+              inputProps={{ max: maxInvestment }}
+            />
+            <Slider
+              sx={{ width: "70%" }}
+              value={investValue}
+              onChange={handleSliderChange}
+              min={0}
+              max={maxInvestment}
+            />
+          </Box>
         </Box>
         <Box sx={{ marginTop: 3 }}>
           <Typography id="modal-modal-description" sx={{}}>
