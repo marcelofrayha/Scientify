@@ -33,23 +33,29 @@ export interface Scientify4Interface extends Interface {
       | "burn"
       | "burnBatch"
       | "createResearch"
+      | "fundResearch"
       | "isApprovedForAll"
       | "isVerifiedResearcher"
       | "owner"
+      | "pause"
       | "paused"
+      | "readArticle"
+      | "redeemToken"
       | "renounceOwnership"
       | "researchById"
+      | "researchOwner"
       | "researchRequest"
       | "researcherVerificationAttestations"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
       | "setApprovalForAll"
+      | "setURI"
       | "spInstance"
       | "supportsInterface"
       | "transferOwnership"
+      | "unpause"
       | "uri"
       | "verifiedResearchers"
-      | "verifyResearcher"
   ): FunctionFragment;
 
   getEvent(
@@ -96,6 +102,10 @@ export interface Scientify4Interface extends Interface {
     values: [string, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "fundResearch",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
   ): string;
@@ -104,13 +114,26 @@ export interface Scientify4Interface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "readArticle",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "redeemToken",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "researchById",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "researchOwner",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -139,6 +162,7 @@ export interface Scientify4Interface extends Interface {
     functionFragment: "setApprovalForAll",
     values: [AddressLike, boolean]
   ): string;
+  encodeFunctionData(functionFragment: "setURI", values: [string]): string;
   encodeFunctionData(
     functionFragment: "spInstance",
     values?: undefined
@@ -151,13 +175,10 @@ export interface Scientify4Interface extends Interface {
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "verifiedResearchers",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "verifyResearcher",
     values: [AddressLike]
   ): string;
 
@@ -181,6 +202,10 @@ export interface Scientify4Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "fundResearch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
@@ -189,13 +214,26 @@ export interface Scientify4Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "readArticle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "redeemToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "researchById",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "researchOwner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -218,6 +256,7 @@ export interface Scientify4Interface extends Interface {
     functionFragment: "setApprovalForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setURI", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "spInstance", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
@@ -227,13 +266,10 @@ export interface Scientify4Interface extends Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "verifiedResearchers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifyResearcher",
     data: BytesLike
   ): Result;
 }
@@ -513,6 +549,12 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
 
+  fundResearch: TypedContractMethod<
+    [id: BigNumberish, amount: BigNumberish],
+    [void],
+    "payable"
+  >;
+
   isApprovedForAll: TypedContractMethod<
     [account: AddressLike, operator: AddressLike],
     [boolean],
@@ -527,7 +569,13 @@ export interface Scientify4 extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
+  pause: TypedContractMethod<[], [void], "nonpayable">;
+
   paused: TypedContractMethod<[], [boolean], "view">;
+
+  readArticle: TypedContractMethod<[id: BigNumberish], [string], "payable">;
+
+  redeemToken: TypedContractMethod<[id: BigNumberish], [void], "payable">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -560,6 +608,8 @@ export interface Scientify4 extends BaseContract {
     ],
     "view"
   >;
+
+  researchOwner: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   researchRequest: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
@@ -627,6 +677,8 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
 
+  setURI: TypedContractMethod<[newuri: string], [void], "nonpayable">;
+
   spInstance: TypedContractMethod<[], [string], "view">;
 
   supportsInterface: TypedContractMethod<
@@ -641,18 +693,14 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
 
+  unpause: TypedContractMethod<[], [void], "nonpayable">;
+
   uri: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   verifiedResearchers: TypedContractMethod<
     [arg0: AddressLike],
     [boolean],
     "view"
-  >;
-
-  verifyResearcher: TypedContractMethod<
-    [researcher: AddressLike],
-    [void],
-    "nonpayable"
   >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
@@ -710,6 +758,13 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "fundResearch"
+  ): TypedContractMethod<
+    [id: BigNumberish, amount: BigNumberish],
+    [void],
+    "payable"
+  >;
+  getFunction(
     nameOrSignature: "isApprovedForAll"
   ): TypedContractMethod<
     [account: AddressLike, operator: AddressLike],
@@ -723,8 +778,17 @@ export interface Scientify4 extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "pause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "paused"
   ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "readArticle"
+  ): TypedContractMethod<[id: BigNumberish], [string], "payable">;
+  getFunction(
+    nameOrSignature: "redeemToken"
+  ): TypedContractMethod<[id: BigNumberish], [void], "payable">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -759,6 +823,9 @@ export interface Scientify4 extends BaseContract {
     ],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "researchOwner"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "researchRequest"
   ): TypedContractMethod<
@@ -827,6 +894,9 @@ export interface Scientify4 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "setURI"
+  ): TypedContractMethod<[newuri: string], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "spInstance"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -836,14 +906,14 @@ export interface Scientify4 extends BaseContract {
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "unpause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "uri"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "verifiedResearchers"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "verifyResearcher"
-  ): TypedContractMethod<[researcher: AddressLike], [void], "nonpayable">;
 
   getEvent(
     key: "ApprovalForAll"

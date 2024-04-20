@@ -78,14 +78,15 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint256 articlePriceIncreaseRate
     ) public {
         // Check if the sender is a verified researcher
-        // if (!verifiedResearchers[msg.sender]) {
-        //     revert NotAuthenticated();
-        // }
+        //test
+        if (!verifiedResearchers[msg.sender]) {
+            revert NotAuthenticated();
+        }
 
-        // // Ensure that the sender has not exceeded the research request cap
-        // if (researchRequest[msg.sender].length >= 5) {
-        //     revert ResearchCap();
-        // }
+        // Ensure that the sender has not exceeded the research request cap
+        if (researchRequest[msg.sender].length >= 5) {
+            revert ResearchCap();
+        }
 
         // The invest amount must be large enough to avoid issues with share price calculation.
         // This replaces the magic number 1e8 with a named constant for better readability.
@@ -132,13 +133,16 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     ) public view returns (bool) {
         return verifiedResearchers[researcher];
     }
-
-    function verifyResearcher(address researcher) public onlyOwner {
-        verifiedResearchers[researcher] = true;
-        emit ResearcherVerified(researcher);
-    }
+    //test
+    // function verifyResearcher(address researcher) public onlyOwner {
+    //     verifiedResearchers[researcher] = true;
+    //     emit ResearcherVerified(researcher);
+    // }
 
     function attestResearcherVerification(address researcher) public onlyOwner {
+        
+        verifiedResearchers[researcher] = true;
+        emit ResearcherVerified(researcher);
         //test
         //ethereum sepolia
         // uint64 schemaId = 52;
@@ -178,7 +182,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         emit ResearcherVerificationAttested(researcher, attestationId);
     }
 
-    //Research Author Attestation
+    // Research Author Attestation
     // Function to attest to or endorse the authorship of a research paper
     function attestResearchAuthor(
         uint256 researchId,
@@ -243,6 +247,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         //_mint
        mint(msg.sender, id, amount, "");
         research.funding += msg.value;
+        //maybe payable(research.owner)
         (bool success, ) = payable(researchOwner[id]).call{value: msg.value}("");
         if (!success) revert PaymentFailed();
         if (research.funding >= research.investment) researchById[id].state = ResearchState.developed;
