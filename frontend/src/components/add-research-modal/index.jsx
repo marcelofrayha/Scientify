@@ -40,6 +40,7 @@ export default function AddResearchModal({ open, handleClose, setData }) {
       ...prevState,
     ]);
     handleClose();
+    setDefaultValues();
   };
 
   const handleAddAuthor = () => {
@@ -57,6 +58,13 @@ export default function AddResearchModal({ open, handleClose, setData }) {
     const editAuthors = [...authors];
     editAuthors.splice(index, 1);
     setAuthors(editAuthors);
+  };
+
+  const setDefaultValues = () => {
+    setTitle("");
+    setDescription("");
+    setTotalCost(0);
+    setAuthors([{ name: "" }]);
   };
 
   return (
