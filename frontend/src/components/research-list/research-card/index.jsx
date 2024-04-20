@@ -5,7 +5,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import { Box, Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import { useState } from "react";
 import InvestModal from "../../invest-modal";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
