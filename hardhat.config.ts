@@ -55,7 +55,13 @@ const config: HardhatUserConfig = {
             accounts: [process.env.PRIVATE_KEY!],
             saveDeployments: true,
             zksync: false
-        }
+        },
+        // Adding Arbitrum Sepolia
+        arbitrumSepolia: {
+            url: process.env.ARBITRUM_SEPOLIA_RPC_URL!, // Replace with your Arbitrum Sepolia RPC URL
+            chainId: 421614, // Arbitrum Sepolia Chain ID
+            accounts: [process.env.PRIVATE_KEY!]
+        },
     },
     etherscan: {
         apiKey: {
@@ -67,7 +73,8 @@ const config: HardhatUserConfig = {
             sepolia: process.env.ETHERSCAN_KEY!,
             mainnet: process.env.ETHERSCAN_KEY!,
             zetachainTestnet: process.env.ZETASCAN_API_KEY!,
-            zetachain: process.env.ZETASCAN_API_KEY!
+            zetachain: process.env.ZETASCAN_API_KEY!,
+            arbitrumSepolia: process.env.ARBITRUM_SEPOLIA_SCAN_API_KEY
         },
         customChains: [
             {
