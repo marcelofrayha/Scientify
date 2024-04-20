@@ -42,16 +42,12 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     mapping(address => bool) public verifiedResearchers;
     mapping(address => Research[]) public researchRequest;
     mapping(uint256 => Research) public researchById;
-    mapping (uint => address) public researchOwner;
+    mapping(uint => address) public researchOwner;
     mapping(uint256 => string) private repository;
     mapping(address => uint64) public researcherVerificationAttestations;
 
-    // Ethereum Sepolia
-    // ISP public spInstance = ISP(0x878c92FD89d8E0B93Dc0a3c907A2adc7577e39c5);
     // Arbitrum Seplia
     ISP public spInstance = ISP(0x4e4af2a21ebf62850fD99Eb6253E1eFBb56098cD);
-
-    // uint64 public schemaId;
 
     constructor() ERC1155("EURK") Ownable(msg.sender) {}
 
@@ -78,7 +74,6 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         uint256 articlePriceIncreaseRate
     ) public {
         // Check if the sender is a verified researcher
-        //test
         if (!verifiedResearchers[msg.sender]) {
             revert NotAuthenticated();
         }
@@ -88,12 +83,7 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
             revert ResearchCap();
         }
 
-        // The invest amount must be large enough to avoid issues with share price calculation.
-        // This replaces the magic number 1e8 with a named constant for better readability.
         uint256 minInvest = 1e8;
-        // if (invest < minInvest) {
-        //     revert NotEnoughValue();
-        // }
 
         // Calculate the sharePrice safely. Since invest >= minInvest, this won't divide by zero.
         uint256 sharePrice = invest / minInvest;
@@ -133,20 +123,11 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
     ) public view returns (bool) {
         return verifiedResearchers[researcher];
     }
-    //test
-    // function verifyResearcher(address researcher) public onlyOwner {
-    //     verifiedResearchers[researcher] = true;
-    //     emit ResearcherVerified(researcher);
-    // }
 
     function attestResearcherVerification(address researcher) public onlyOwner {
-        
         verifiedResearchers[researcher] = true;
         emit ResearcherVerified(researcher);
-        //test
-        //ethereum sepolia
-        // uint64 schemaId = 52;
-        //arbitrum sepolia
+
         uint64 schemaId = 30;
 
         bytes[] memory recipients = new bytes[](1);
@@ -199,9 +180,6 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
 
         require(research.id != 0, "Research does not exist");
 
-        //ethereum sepolia
-        // uint64 schemaId = 67;
-        //arbitrum sepolia
         uint64 schemaId = 31;
 
         // Encode the CID and the owner's address for saving to attestation.data
@@ -216,12 +194,11 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         // Create the attestation or endorsement
         Attestation memory researchAttestation = Attestation({
             schemaId: schemaId,
-            linkedAttestationId: linkedAttestationId, // This links to a previous attestation if it's an endorsement
+            linkedAttestationId: linkedAttestationId,
             attestTimestamp: 0,
             revokeTimestamp: 0,
-            //test
             attester: address(this),
-            validUntil: 0, // Optional: set an expiration if required
+            validUntil: 0, 
             dataLocation: DataLocation.ONCHAIN,
             revoked: false,
             recipients: recipients,
@@ -240,40 +217,46 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         emit VerificationAttested(msg.sender, attestationId);
     }
 
-        function fundResearch (uint id, uint amount) public payable {
-        if (msg.value < researchById[id].sharePrice * amount) revert NotEnoughValue();
+    function fundResearch(uint id, uint amount) public payable {
+        if (msg.value < researchById[id].sharePrice * amount)
+            revert NotEnoughValue();
         Research storage research = researchById[id];
-        //changed this
-        //_mint
-       mint(msg.sender, id, amount, "");
+        mint(msg.sender, id, amount, "");
         research.funding += msg.value;
-        //maybe payable(research.owner)
-        (bool success, ) = payable(researchOwner[id]).call{value: msg.value}("");
+        (bool success, ) = payable(researchOwner[id]).call{value: msg.value}(
+            ""
+        );
         if (!success) revert PaymentFailed();
-        if (research.funding >= research.investment) researchById[id].state = ResearchState.developed;
+        if (research.funding >= research.investment)
+            researchById[id].state = ResearchState.developed;
     }
 
-        function readArticle (uint id) public payable returns (string memory repo) {
+    function readArticle(uint id) public payable returns (string memory repo) {
         Research storage research = researchById[id];
         if (msg.value < research.articlePrice) revert NotEnoughValue();
-        research.articlePrice *= (1 + (research.articlePriceIncreaseRate / 100));
+        research.articlePrice *= (1 +
+            (research.articlePriceIncreaseRate / 100));
         research.profit += msg.value;
         if (research.profit >= research.investment) {
-         research.state = ResearchState.paid;
-         research.articlePrice = 0;
-        (bool success, ) = payable(msg.sender).call{value: research.profit - research.investment}("");
-        if (!success) revert PaymentFailed();
+            research.state = ResearchState.paid;
+            research.articlePrice = 0;
+            (bool success, ) = payable(msg.sender).call{
+                value: research.profit - research.investment
+            }("");
+            if (!success) revert PaymentFailed();
         }
         return repository[id];
     }
 
-    function redeemToken (uint id) public payable {
+    function redeemToken(uint id) public payable {
         Research storage research = researchById[id];
         if (research.state != ResearchState.paid) revert NotLiquidable();
         uint tokensOwned = balanceOf(msg.sender, id);
         if (tokensOwned == 0) revert NoTokenBalance();
         burn(msg.sender, id, tokensOwned);
-        (bool success, ) = payable(msg.sender).call{value : research.sharePrice * tokensOwned}("");
+        (bool success, ) = payable(msg.sender).call{
+            value: research.sharePrice * tokensOwned
+        }("");
         if (!success) revert PaymentFailed();
     }
 
@@ -289,15 +272,21 @@ contract Scientify4 is ERC1155, Ownable, ERC1155Pausable, ERC1155Burnable {
         _unpause();
     }
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data)
-        internal
-    {
+    function mint(
+        address account,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) internal {
         _mint(account, id, amount, data);
     }
 
-    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
-        internal
-    {
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal {
         _mintBatch(to, ids, amounts, data);
     }
 
